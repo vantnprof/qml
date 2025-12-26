@@ -2,14 +2,26 @@
 version: 1
 project:
   id: 397ec672-780b-48e0-8fc7-68104b7fa65a
-  # title:
-  # description:
-  # keywords: []
-  # authors: []
+  title: Quantum Machine Learning
+  index: index.tex
+  exclude:
+    - sidebar-footer.md
+    - README.md
+  description: Quantum machine learning is the recently developing field which explores quantum advantages for machine learning, and merits of machine learning for quantum computing. This blog is written based on my experties doing research in this field.
+  keywords: ["quantum computing", "machine learning", "quantum machine learning"]
+  authors: [Van Tien Nguyen]
   github: https://github.com/vantnprof/qml
   # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
 site:
   template: book-theme
-  # options:
+  options:
+    logo_text: "Quantum Machine Learning"
+    folders: false
+  parts:
+    primary_sidebar_footer: ""
+  nav:
+    - Machine Learning: "content/Machine learning/machine-learning.tex"
+    - Quantum Computing: "content/Quantum computing/quantum-computing.tex"
+    - Quantum Machine Learning: "content/Quantum Machine Learning/quantum-machine-learning.tex"
   #   favicon: favicon.ico
   #   logo: site_logo.png

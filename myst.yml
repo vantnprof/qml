@@ -16,9 +16,10 @@ site:
   template: book-theme
   options:
     logo_text: "Quantum Machine Learning"
+    favicon: static/favicon.ico
+    logo: static/logo-site.jpeg
     folders: false
   parts:
     primary_sidebar_footer: ""
-  #   favicon: favicon.ico
-  #   logo: site_logo.png
+
   

@@ -37,6 +37,11 @@ jobs:
           node-version: 18.x
       - name: Install Jupyter Book (via myst)
         run: npm install -g jupyter-book
+      - name: Fetch book theme
+        run: |
+          npm install @myst-theme/book
+          mkdir -p _build/templates/site/myst
+          cp -r node_modules/@myst-theme/book _build/templates/site/myst/book-theme
       - name: Build HTML Assets
         run: jupyter-book build --html
       - name: Upload artifact

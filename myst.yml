@@ -19,9 +19,6 @@ site:
     folders: false
   parts:
     primary_sidebar_footer: ""
-  nav:
-    - Machine Learning: "content/Machine learning/machine-learning.tex"
-    - Quantum Computing: "content/Quantum computing/quantum-computing.tex"
-    - Quantum Machine Learning: "content/Quantum Machine Learning/quantum-machine-learning.tex"
   #   favicon: favicon.ico
   #   logo: site_logo.png
+  

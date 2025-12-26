@@ -1,0 +1,15 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: 397ec672-780b-48e0-8fc7-68104b7fa65a
+  # title:
+  # description:
+  # keywords: []
+  # authors: []
+  github: https://github.com/vantnprof/qml
+  # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+site:
+  template: book-theme
+  # options:
+  #   favicon: favicon.ico
+  #   logo: site_logo.png

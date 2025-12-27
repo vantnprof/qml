@@ -1,5 +1,5 @@
 # Fdb version 4
-["bibtex 1_basic_quantum_information"] 0 "1_basic_quantum_information.aux" "1_basic_quantum_information.bbl" "1_basic_quantum_information" 0 0
+["bibtex 1_basic_quantum_information"] 0 "1_basic_quantum_information.aux" "1_basic_quantum_information.bbl" "1_basic_quantum_information" 1766803166.37306 0
   "./bib/bib.bib" 0 -1 0 ""
   "/usr/local/texlive/2025/texmf-dist/bibtex/bst/ieeetran/IEEEtran.bst" 1440712899 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
   "1_basic_quantum_information.aux" 0 -1 0 "pdflatex"
@@ -7,8 +7,8 @@
   "1_basic_quantum_information.bbl"
   "1_basic_quantum_information.blg"
   (rewritten before read)
-["pdflatex"] 1766802561.55066 "/Users/tiennvcs/Documents/GitHub/qml/content/Quantum computing/1_basic_quantum_information.tex" "1_basic_quantum_information.pdf" "1_basic_quantum_information" 1766802562.24 2
-  "/Users/tiennvcs/Documents/GitHub/qml/content/Quantum computing/1_basic_quantum_information.tex" 1766802560.60276 2577 35f146bcfb5a5c4768eabcc90b71a403 ""
+["pdflatex"] 1766803165.73967 "/Users/tiennvcs/Documents/GitHub/qml/content/Quantum computing/1_basic_quantum_information.tex" "1_basic_quantum_information.pdf" "1_basic_quantum_information" 1766803166.37317 0
+  "/Users/tiennvcs/Documents/GitHub/qml/content/Quantum computing/1_basic_quantum_information.tex" 1766803165.47442 2598 32d085b243d7b9dcb1a5d4ed94a67aa7 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1136768653 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -34,6 +34,7 @@
   "/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsmath.sty" 1730928152 88370 c780f23aea0ece6add91e09b44dca2cd ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsopn.sty" 1717359999 4474 23ca1d3a79a57b405388059456d0a8df ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amstext.sty" 1717359999 2444 71618ea5f2377e33b04fb97afdd0eac2 ""
+  "/usr/local/texlive/2025/texmf-dist/tex/latex/braket/braket.sty" 1266794558 3601 193635d942bc4777a5acaaeeffdce692 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/cite/cite.sty" 1425427964 26218 19edeff8cdc2bcb704e8051dc55eb5a7 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/ieeetran/IEEEtran.cls" 1440712899 281957 5b2e4fa15b0f7eabb840ebf67df4c0f7 ""
   "/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def" 1716410060 29785 9f93ab201fe5dd053afcc6c1bcf7d266 ""
@@ -42,9 +43,9 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1766800260 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "1_basic_quantum_information.aux" 1766802561.93072 676 babc6c05d38dfccbf16ee77240174742 "pdflatex"
+  "1_basic_quantum_information.aux" 1766803166.07734 676 babc6c05d38dfccbf16ee77240174742 "pdflatex"
   "1_basic_quantum_information.bbl" 0 -1 0 "bibtex 1_basic_quantum_information"
-  "1_basic_quantum_information.tex" 1766802560.60276 2577 35f146bcfb5a5c4768eabcc90b71a403 ""
+  "1_basic_quantum_information.tex" 1766803165.47442 2598 32d085b243d7b9dcb1a5d4ed94a67aa7 ""
   (generated)
   "1_basic_quantum_information.aux"
   "1_basic_quantum_information.log"

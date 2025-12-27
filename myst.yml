@@ -22,10 +22,12 @@ project:
       file: content/Machine learning/machine-learning.tex
 
     - title: Quantum Computing
-      file: content/Quantum computing/quantum-computing.tex
+      file: content/Quantum computing/quantum_computing_index.tex
       children:
-        -  title: Quantum Information
-           file: content/Quantum computing/1_basic_quantum_information.tex
+        - title: Quantum fundamentals
+          file: content/Quantum computing/1_basic_quantum_information.tex
+        - title: Test Python
+          file: content/Quantum computing/test_python.tex
           
     - title: Quantum Machine Learning
       file: content/Quantum machine learning/quantum-machine-learning.tex

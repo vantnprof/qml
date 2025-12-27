@@ -1,8 +1,8 @@
-PWD /Users/tiennvcs/Documents/GitHub/qml/content/Quantum computing
+PWD /Users/tiennv/Documents/GitHub/qml/content/Quantum computing
 INPUT /usr/local/texlive/2025/texmf.cnf
 INPUT /usr/local/texlive/2025/texmf-dist/web2c/texmf.cnf
 INPUT /usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT /Users/tiennvcs/Documents/GitHub/qml/content/Quantum computing/1_basic_quantum_information.tex
+INPUT /Users/tiennv/Documents/GitHub/qml/content/Quantum computing/1_basic_quantum_information.tex
 OUTPUT 1_basic_quantum_information.log
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/ieeetran/IEEEtran.cls
 INPUT /usr/local/texlive/2025/texmf-dist/tex/latex/ieeetran/IEEEtran.cls

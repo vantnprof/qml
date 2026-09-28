@@ -1,0 +1,111 @@
+\documentclass[10pt,article]{IEEEtran}
+\usepackage{braket} 
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{hyperref}
+% Reusable web content: paths may be project-relative or relative to this file.
+\providecommand{\include}[1]{\href{qml-include:}{included content}}
+\title{Quantum bit}
+\author{Van Tien Nguyen}
+\begin{document}
+\maketitle
+
+\paragraph{Qubit}
+In quantum computing, the fundamental unit of information is the \textbf{quantum bit} or \textbf{qubit}. A qubit can exist in a superposition of states, represented as:
+\begin{equation}
+  \ket{\psi} = \alpha\ket{0} + \beta\ket{1} \in \mathbb{C}^2,
+  \label{eq:qubit_state}
+\end{equation}
+where \(\ket{0} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}\), \(\ket{1} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}\) are the computational basis states, and \(\alpha, \beta \in \mathbb{C}^2\). You can think of \(\ket{0}, \ket{1}\) as classical bit \(0, 1\) but in quantum, the qubit can be in a superposition of both states. Another way to write the quantum state is using vector notation:
+\begin{equation}
+    \ket{\psi} = \begin{bmatrix}
+        \alpha\\
+        \beta
+    \end{bmatrix}.
+\end{equation}
+
+\paragraph{Quantum state normalization}
+For an arbitrary quantum state, it has to satisfy the normalization condition, the sum of the squares of their magnitudes equals one. Mathematically speaking,
+\begin{equation}
+    |\alpha|^2 + |\beta|^2 = 1
+    \label{eq:normalized_condition}
+\end{equation}.
+
+Here are examples for a valid quantum state of qubits:
+
+\begin{itemize}
+    \item \(\ket{\psi_1} = \ket{0} + 0\cdot\ket{1} = \ket{0}, \quad (\alpha = 1, \beta = 0)\)
+    \item \(\ket{\psi_2} = 0\cdot\ket{0} +\ket{1} = \ket{1},  \quad (\alpha = 0, \beta = 1)\)
+    \item \(\ket{\psi_3} = \frac{1}{\sqrt{2}}(\ket{0} + \ket{1}),  \quad (\alpha = \beta = \frac{1}{\sqrt{2}})\)
+    \item \(\ket{\psi_4} = \frac{1}{\sqrt{2}}(\ket{0} + i\ket{1}),  \quad (\alpha = \frac{1}{\sqrt{2}}, \beta = i\frac{1}{\sqrt{2}})\)
+\end{itemize}
+You can check if they satisfied the normalization condition. I think they do.
+
+\paragraph{Geometric representation}
+So how do we visualize a qubit? 
+Starting with the complex space of \(\alpha, \beta\), we write them in polar form as:
+\begin{equation}
+    \begin{aligned}
+        \alpha & = r_\alpha e^{i\phi_\alpha},  \quad r_\alpha \in \mathbb{R}_{\geq 0}, \phi_\alpha \in [0, 2\pi)\\
+        \beta & = r_\beta e^{i\phi_\beta},     \quad r_\beta \in \mathbb{R}_{\geq 0}, \phi_\beta \in [0, 2\pi).
+    \end{aligned}
+\end{equation}
+And the magnitude of \(\alpha\) and \(\beta\) are:
+\begin{equation}
+    \begin{aligned}
+        |\alpha| & = r_\alpha \\
+        |\beta| & = r_\beta.
+    \end{aligned}
+\end{equation}
+Plug them into the normalization condition:
+\begin{equation}
+    \begin{aligned}
+                        & |\alpha|^2 + |\beta|^2 = 1 \quad
+        \Leftrightarrow & \left| r_\alpha  \right|^2 + \left|r_\beta \right|^2 = 1 \quad
+        \Leftrightarrow & r_\beta = \sqrt{1 - r_\alpha^2}.
+    \end{aligned}
+\end{equation}
+
+Now let plug them back to the~\eqref{eq:qubit_state}, we have
+\begin{equation}
+    \ket{\psi} = r_\alpha e^{i\phi_\alpha}\ket{0} + \sqrt{1 - r_\alpha^2} e^{i\phi_\beta}\ket{1}
+\end{equation}
+
+Now we can factor out the common term of \(e^{i\phi_\alpha}\) and \(e^{i\phi_\beta}\) as:
+\begin{equation}
+    \begin{aligned}
+        \ket{\psi} &= r_\alpha e^{i\phi_\alpha}\ket{0} + \sqrt{1 - r_\alpha^2} e^{i\phi_\alpha}e^{i(\phi_\beta-\phi_\alpha)}\ket{1} \\
+                   &= e^{i\phi_\alpha}\left(r_\alpha \ket{0} +  \sqrt{1 - r_\alpha^2}  e^{i(\phi_\beta-\phi_\alpha)} \ket{1} \right).
+    \end{aligned}
+\end{equation}
+Finally, since \(r_\alpha^2 + r_\beta^2 = 1\), we can write \(r_\alpha, r_\beta\) as:
+\begin{equation}
+    r_\alpha = \cos{\frac{\theta}{2}}, \quad r_\beta = \sin{\frac{\theta}{2}}.
+\end{equation}
+And let \(\phi_\alpha = \gamma, \phi_\beta-\phi_\alpha = \varphi\), we have the final geometric representation of qubit \(\psi\) as
+\begin{equation}
+    \ket{\psi} = e^{i\gamma}\left(\cos{\frac{\theta}{2}}\ket{0} + e^{i\varphi}\sin{\frac{\theta}{2}}\ket{1}\right).
+\end{equation}
+
+From this form, we have three parameters that completely specify the qubit state: \(\gamma\), \(\theta\), and \(\varphi\). Since \(\gamma\) is a global phase factor, it does not affect the physical properties of the qubit. For this reason, we often ignore it and write it as
+\begin{equation}
+    \ket{\psi} = \cos{\frac{\theta}{2}}\ket{0} + e^{i\varphi}\sin{\frac{\theta}{2}}\ket{1}.
+\end{equation}
+Therefore, a qubit would be represented by a point on a unit three-dimensional sphere, known as the Bloch sphere. And it is often called the Bloch sphere representation of a qubit. 
+
+\include{static/bloch-sphere.html}
+
+% \paragraph{Example with Qiskit}
+% \include{content/examples/qiskit-single-qubit.ipynb}
+\vspace{12pt}
+
+\textbf{Materials}:
+\begin{itemize}
+    \item Single qubit Jupyter notebook demonstration using Qiskit~\href{../notebooks/quantum_computing/qiskit-single-qubit.ipynb}{here}.
+    \item Basics of quantum information from IBM Quantum Learning~\href{https://quantum.cloud.ibm.com/learning/en/courses/basics-of-quantum-information/single-systems/introduction}{here}.
+\end{itemize}
+
+\bibliographystyle{IEEEtran}
+\bibliography{./bib/bib.bib}
+
+\end{document}

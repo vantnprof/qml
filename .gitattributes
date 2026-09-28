@@ -1,2 +1,9 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+* text=auto eol=lf
+*.ipynb text eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.gif binary
+*.mp4 binary
+*.webm binary

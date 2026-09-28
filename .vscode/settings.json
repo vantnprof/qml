@@ -1,0 +1,25 @@
+{
+  "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%/_build/latex",
+  "latex-workshop.latex.build.fromFolder": ".",
+  "latex-workshop.latex.recipe.default": "latexmk (build folder)",
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (build folder)",
+      "tools": ["latexmk-build-folder"]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk-build-folder",
+      "command": "latexmk",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "-pdf",
+        "-outdir=%OUTDIR%",
+        "%DOC_EXT%"
+      ]
+    }
+  ]
+}

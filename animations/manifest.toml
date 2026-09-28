@@ -1,0 +1,8 @@
+# Register each Manim scene you want the publication pipeline to render.
+# See animations/README.md for the supported fields.
+
+[[scene]]
+source = "animations/workflow_demo.py"
+class = "WorkflowDemo"
+slug = "workflow-demo"
+poster_time = "00:00:04.000"

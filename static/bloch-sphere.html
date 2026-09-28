@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive Bloch sphere</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #fbf8f1; --ink: #1b1d1b; --muted: #62665f; --line: #d7cebd;
+      --state: #294554; --theta: #b44b3c; --phi: #267767;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #1d2321; --ink: #ece8de; --muted: #aaa69c; --line: #56605a;
+        --state: #9bb7c3; --theta: #e0806e; --phi: #7bcab4;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); font: 15px/1.5 system-ui, sans-serif; }
+    main { padding: 20px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+    h2 { margin: 0; font-size: 19px; font-weight: 650; }
+    p { margin: 6px 0 12px; }
+    .hint { color: var(--muted); font-size: 13px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: center; }
+    svg { display: block; width: 100%; height: auto; overflow: visible; }
+    svg text { fill: var(--ink); font: 17px system-ui, sans-serif; paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
+    .grid { fill: none; stroke: var(--line); stroke-width: 1; }
+    .axis { fill: none; stroke: var(--muted); stroke-width: 1.3; }
+    .guide { fill: none; stroke: var(--state); stroke-width: 1.4; stroke-dasharray: 4 5; opacity: .7; }
+    .vector { fill: none; stroke: var(--state); stroke-width: 3; }
+    .theta { color: var(--theta); }
+    .phi { color: var(--phi); }
+    .arc { fill: none; stroke: currentColor; stroke-width: 2.5; }
+    svg text.theta { fill: var(--theta); }
+    svg text.phi { fill: var(--phi); }
+    .control { margin: 0 0 17px; }
+    .control-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    label { font-weight: 650; }
+    output { font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 13px; }
+    input[type="range"] { display: block; width: 100%; margin: 6px 0 0; min-height: 28px; accent-color: var(--state); cursor: pointer; }
+    #theta { accent-color: var(--theta); }
+    #phi { accent-color: var(--phi); }
+    .limits { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+    button { border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--ink); font: inherit; padding: 5px 11px; min-height: 36px; cursor: pointer; }
+    button:hover { background: color-mix(in srgb, var(--state) 10%, transparent); }
+    :focus-visible { outline: 2px solid var(--state); outline-offset: 3px; }
+    .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+    .readout { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+    .equation { font-family: "Cambria Math", "STIX Two Math", Georgia, serif; font-size: 18px; overflow-wrap: anywhere; }
+    #amplitudes { font-size: 16px; }
+    .stats { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 18px; font-variant-numeric: tabular-nums; font-size: 13px; }
+    .stats p { margin: 4px 0; }
+    #pole-note { min-height: 2.8em; margin-bottom: 0; }
+    @media (max-width: 540px) {
+      main { padding: 14px; }
+      .layout { grid-template-columns: 1fr; gap: 4px; }
+      svg { max-width: 340px; margin: 0 auto; }
+      .control { margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h2>Explore a qubit</h2>
+  <p class="hint">Move the sliders to change the state. Angles are shown in degrees and radians.</p>
+  <div class="layout">
+    <svg id="sphere" viewBox="0 0 400 400" role="img" aria-labelledby="sphere-title sphere-description">
+      <title id="sphere-title">Bloch sphere</title>
+      <desc id="sphere-description">A unit sphere with x, y, and z axes, computational basis states at the poles, and a qubit state vector.</desc>
+      <defs>
+        <radialGradient id="surface" cx="35%" cy="28%" r="75%">
+          <stop offset="0%" stop-color="var(--state)" stop-opacity=".03"/>
+          <stop offset="100%" stop-color="var(--state)" stop-opacity=".12"/>
+        </radialGradient>
+        <marker id="arrow-axis" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"/></marker>
+        <marker id="arrow-state" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--state)"/></marker>
+      </defs>
+      <circle cx="200" cy="200" r="140" fill="url(#surface)" stroke="var(--line)"/>
+      <g id="grid"></g>
+      <g id="axes"></g>
+      <g id="dynamic">
+        <path id="projection" class="guide"/>
+        <path id="azimuth-ray" class="guide"/>
+        <path id="theta-arc" class="arc theta"/>
+        <path id="phi-arc" class="arc phi"/>
+        <path id="state-vector" class="vector" marker-end="url(#arrow-state)"/>
+        <circle id="state-point" r="5" fill="var(--state)"/>
+        <text id="state-label">|ψ⟩</text>
+        <text id="theta-label" class="theta">θ</text>
+        <text id="phi-label" class="phi">φ</text>
+      </g>
+    </svg>
+    <div>
+      <div class="control">
+        <div class="control-top"><label class="theta" for="theta">θ · polar angle</label><output id="theta-value" for="theta"></output></div>
+        <input id="theta" type="range" min="0" max="180" step="1" value="60" aria-describedby="theta-help">
+        <div class="limits"><span>0</span><span>π</span></div>
+        <span class="hint" id="theta-help">Measured from the +z axis.</span>
+      </div>
+      <div class="control">
+        <div class="control-top"><label class="phi" for="phi">φ · relative phase</label><output id="phi-value" for="phi"></output></div>
+        <input id="phi" type="range" min="0" max="360" step="1" value="120" aria-describedby="phi-help">
+        <div class="limits"><span>0</span><span>2π</span></div>
+        <span class="hint" id="phi-help">Measured from +x toward +y in the xy plane.</span>
+      </div>
+      <div class="control">
+        <div class="control-top"><label for="gamma">γ · global phase</label><output id="gamma-value" for="gamma"></output></div>
+        <input id="gamma" type="range" min="0" max="360" step="1" value="0" aria-describedby="gamma-help">
+        <div class="limits"><span>0</span><span>2π</span></div>
+        <span class="hint" id="gamma-help">Changes amplitudes; leaves the Bloch vector and probabilities unchanged.</span>
+      </div>
+    </div>
+  </div>
+  <div class="presets" aria-label="Example states">
+    <button type="button" data-theta="0" data-phi="0">|0⟩</button>
+    <button type="button" data-theta="180" data-phi="0">|1⟩</button>
+    <button type="button" data-theta="90" data-phi="0">|+⟩</button>
+    <button type="button" data-theta="90" data-phi="180">|−⟩</button>
+    <button type="button" data-theta="90" data-phi="90">|+i⟩</button>
+    <button type="button" data-theta="90" data-phi="270">|−i⟩</button>
+    <button type="button" data-theta="60" data-phi="120">Reset</button>
+  </div>
+  <div class="readout" aria-live="polite" aria-atomic="true">
+    <p class="equation">|ψ⟩ = e<sup>iγ</sup>[cos(θ/2)|0⟩ + e<sup>iφ</sup> sin(θ/2)|1⟩]</p>
+    <p class="equation" id="amplitudes"></p>
+    <div class="stats"><p id="coordinates"></p><p id="probabilities"></p></div>
+  </div>
+  <p class="hint">r = (sin θ cos φ, sin θ sin φ, cos θ). The sphere shows the physical pure state; γ does not change its position.</p>
+  <p class="hint" id="pole-note"></p>
+  <noscript>Enable JavaScript to use the sliders and see the state vector.</noscript>
+</main>
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const inputs = [$("theta"), $("phi"), $("gamma")];
+  const TAU = 2 * Math.PI;
+  const scale = 140;
+  // Orthographic camera: +z up, +x down-left, +y down-right.
+  // The two camera basis vectors are orthonormal, so the unit sphere is circular.
+  const azimuth = 55 * Math.PI / 180;
+  const elevation = 22 * Math.PI / 180;
+  function project([x, y, z]) {
+    return [
+      200 + scale * (-Math.sin(azimuth) * x + Math.cos(azimuth) * y),
+      200 + scale * (Math.sin(elevation) * (Math.cos(azimuth) * x + Math.sin(azimuth) * y) - Math.cos(elevation) * z),
+    ];
+  }
+  function path(points) {
+    return points.map((p, i) => `${i ? "L" : "M"}${project(p).join(",")}`).join(" ");
+  }
+  function arc(fn, end = TAU) {
+    const steps = Math.max(2, Math.ceil(Math.abs(end) * 32));
+    return Array.from({ length: steps + 1 }, (_, i) => fn(end * i / steps));
+  }
+  function svgElement(tag, attrs, parent, text) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+    if (text) node.textContent = text;
+    parent.appendChild(node);
+    return node;
+  }
+  // Fade back-facing wireframe segments to make the 3D geometry legible.
+  function gridCurve(points) {
+    for (let i = 1; i < points.length; i++) {
+      const p = points[i];
+      const depth = Math.cos(elevation) * (Math.cos(azimuth) * p[0] + Math.sin(azimuth) * p[1]) + Math.sin(elevation) * p[2];
+      svgElement("path", { d: path([points[i - 1], p]), class: "grid", opacity: depth < 0 ? .45 : .9 }, $("grid"));
+    }
+  }
+  for (const latitude of [-Math.PI / 6, 0, Math.PI / 6]) {
+    gridCurve(arc((a) => [Math.cos(latitude) * Math.cos(a), Math.cos(latitude) * Math.sin(a), Math.sin(latitude)]));
+  }
+  for (const longitude of [0, Math.PI / 2]) {
+    gridCurve(arc((a) => [Math.sin(a) * Math.cos(longitude), Math.sin(a) * Math.sin(longitude), Math.cos(a)]));
+  }
+  for (const [axis, name] of [[[1, 0, 0], "x"], [[0, 1, 0], "y"], [[0, 0, 1], "z"]]) {
+    svgElement("path", { d: path([axis.map((v) => -1.15 * v), axis.map((v) => 1.22 * v)]), class: "axis", "marker-end": "url(#arrow-axis)" }, $("axes"));
+    const [x, y] = project(axis.map((v) => 1.34 * v));
+    svgElement("text", { x, y: y + 5, "text-anchor": "middle" }, $("axes"), name);
+  }
+  for (const [z, label] of [[1, "|0⟩"], [-1, "|1⟩"]]) {
+    const [x, y] = project([0, 0, z]);
+    svgElement("circle", { cx: x, cy: y, r: 3, fill: "var(--muted)" }, $("axes"));
+    svgElement("text", { x: x + 12, y: y + (z > 0 ? -5 : 17) }, $("axes"), label);
+  }
+  const number = (n) => (Math.abs(n) < .0005 ? 0 : n).toFixed(3);
+  const complex = (real, imaginary) => `(${number(real)} ${imaginary < -.0005 ? "−" : "+"} ${number(Math.abs(imaginary))}i)`;
+  function position(id, point, dx = 0, dy = 0) {
+    const [x, y] = project(point);
+    $(id).setAttribute("x", x + dx);
+    $(id).setAttribute("y", y + dy);
+  }
+  function update() {
+    const [theta, phi, gamma] = inputs.map((input) => Number(input.value) * Math.PI / 180);
+    inputs.forEach((input) => {
+      const degrees = Number(input.value);
+      $(input.id + "-value").textContent = `${degrees}° · ${(degrees / 180).toFixed(2)}π`;
+      input.setAttribute("aria-valuetext", `${degrees} degrees, ${(degrees / 180).toFixed(2)} pi radians`);
+    });
+    const state = [Math.sin(theta) * Math.cos(phi), Math.sin(theta) * Math.sin(phi), Math.cos(theta)];
+    const foot = [state[0], state[1], 0];
+    const atPole = Math.abs(Math.sin(theta)) < 1e-10;
+    $("state-vector").setAttribute("d", path([[0, 0, 0], state]));
+    const [cx, cy] = project(state);
+    $("state-point").setAttribute("cx", cx);
+    $("state-point").setAttribute("cy", cy);
+    position("state-label", state, -33, -12);
+    $("projection").setAttribute("d", path([state, foot, [0, 0, 0]]));
+    $("azimuth-ray").setAttribute("d", atPole ? "" : path([[0, 0, 0], [Math.cos(phi), Math.sin(phi), 0]]));
+    $("theta-arc").setAttribute("d", path(arc((t) => [.38 * Math.sin(t) * Math.cos(phi), .38 * Math.sin(t) * Math.sin(phi), .38 * Math.cos(t)], theta)));
+    $("phi-arc").setAttribute("d", atPole ? "" : path(arc((p) => [.56 * Math.cos(p), .56 * Math.sin(p), 0], phi)));
+    position("theta-label", [.48 * Math.sin(theta / 2) * Math.cos(phi), .48 * Math.sin(theta / 2) * Math.sin(phi), .48 * Math.cos(theta / 2)], 5, -2);
+    position("phi-label", [.69 * Math.cos(phi / 2), .69 * Math.sin(phi / 2), 0], 0, 6);
+    $("phi-label").style.display = atPole ? "none" : "";
+    const a = Math.cos(theta / 2);
+    const b = Math.sin(theta / 2);
+    $("amplitudes").textContent = `|ψ⟩ ≈ ${complex(a * Math.cos(gamma), a * Math.sin(gamma))}|0⟩ + ${complex(b * Math.cos(gamma + phi), b * Math.sin(gamma + phi))}|1⟩`;
+    $("coordinates").textContent = `r = (${state.map(number).join(", ")})`;
+    $("probabilities").textContent = `P(0) = ${(100 * a * a).toFixed(1)}% · P(1) = ${(100 * b * b).toFixed(1)}%`;
+    $("sphere-description").textContent = `Bloch sphere with x, y, z axes; |0⟩ at +z and |1⟩ at −z. Theta ${inputs[0].value} degrees, phi ${inputs[1].value} degrees. ${$("coordinates").textContent}.`;
+    $("pole-note").textContent = atPole
+      ? "At either pole, φ does not change the physical state, so its arc is hidden."
+      : "θ is the angle from +z to the state vector. φ is the angle in the xy plane to its dashed projection.";
+  }
+  inputs.forEach((input) => input.addEventListener("input", update));
+  document.querySelectorAll("button[data-theta]").forEach((button) => {
+    button.addEventListener("click", () => {
+      inputs[0].value = button.dataset.theta;
+      inputs[1].value = button.dataset.phi;
+      inputs[2].value = "0";
+      update();
+    });
+  });
+  update();
+  // Same-origin book embedding: follow the book's theme and fit content height.
+  // The widget also works by itself, or in a cross-origin iframe with its own theme.
+  try {
+    if (window.frameElement) {
+      const host = window.parent.document.documentElement;
+      const syncTheme = () => {
+        const styles = window.parent.getComputedStyle(host);
+        const tokens = { paper: "paper-raised", ink: "ink", muted: "ink-faint", line: "line-strong", state: "indigo", theta: "vermilion" };
+        for (const [local, remote] of Object.entries(tokens)) {
+          const value = styles.getPropertyValue(`--qml-${remote}`).trim();
+          if (value) document.documentElement.style.setProperty(`--${local}`, value);
+        }
+        document.documentElement.style.setProperty("--phi", host.classList.contains("dark") ? "#7bcab4" : "#267767");
+      };
+      syncTheme();
+      new MutationObserver(syncTheme).observe(host, { attributes: true, attributeFilter: ["class", "style"] });
+      new ResizeObserver(() => {
+        window.frameElement.style.height = `${Math.ceil(document.querySelector("main").getBoundingClientRect().height) + 2}px`;
+      }).observe(document.querySelector("main"));
+    }
+  } catch { /* Cross-origin embedding uses the standalone layout. */ }
+})();
+</script>
+</body>
+</html>

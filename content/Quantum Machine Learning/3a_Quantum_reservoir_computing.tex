@@ -1,0 +1,69 @@
+\documentclass[10pt,article]{IEEEtran}
+\usepackage{braket} 
+\usepackage{cite}
+\usepackage{amsmath}
+\title{Quantum Reservoir Computing}
+\author{Van Tien Nguyen}
+\begin{document}
+\maketitle
+
+\paragraph{Classical reservoir}
+The classical reservoir approach encompasses theoretical and algorithmic frameworks in which a large, fixed dynamical system (the "reservoir") stores and processes information about an evolving target system, whether for machine learning (reservoir computing), open system dynamics (classical system-reservoir theory), physical parameter estimation, or modeling transport and relaxation phenomena.
+
+The'reservoir' in reservoir computing refers to the computer's internal structure, which must meet two requirements: 
+\begin{itemize}
+    \item it must be made up of independent, non-linear units
+    \item and it must be capable of storing information.
+\end{itemize}
+The nonlinearity characterizes each unit's reaction to input, which enables reservoir computers to tackle difficult problems. Reservoirs can retain information by linking units in recurrent loops, in which the previous input influences the future response. The change in reaction owing to the past enables computers to be educated to do certain jobs.
+
+There are several types of reservoirs, including echo state networks, liquid state machines, and spiking neural networks.
+
+\paragraph{Quantum reservoir computing}
+In 2017, Fujii and Nakajima introduced a quantum reservoir computing paradigm~\cite{fujii2017harnessing}. A quantum system implements a recurrent feature extractor called quantum reservoir computing (QRC), which is then followed by a trainable classical readout. The quantum system processes the input history, and the readout learns how to utilize the results for prediction.
+
+Start with the machine learning problem. Suppose we observe a sequence \(u_1,u_2,\ldots\), and want to predict
+\begin{equation}
+    y_k=F(u_k,u_{k-1},u_{k-2},\ldots).
+\end{equation}
+
+The original input update replaces one qubit while retaining the others. Take a scalar input \(u_k\in[0,1]\). The published 2017 formulation prepares
+
+\begin{equation}
+    \ket{\psi(u_k)} = \sqrt{1-u_k}\ket{0}+\sqrt{u_k}\ket{1}, \qquad \sigma(u_k)=\ket{\psi(u_k)}\bra{\psi}|.
+\end{equation}
+
+Then it injects the input through
+\begin{equation}
+    \tilde{\rho}_k = \sigma(u_k) \otimes \text{Tr}_1(\rho_{k-1}),
+\end{equation}
+where \(\text{Tr}_1(\cdot)\) denotes the partial trace of the system discarded the first qubit.
+
+Quantum evolution mixes the new input with the retained state. In an ideal closed-system model,
+\begin{equation}
+    U_\tau=e^{-iH\tau},
+\end{equation}
+using \(\hbar=1\). One complete update is therefore
+\begin{equation}
+    \rho_k = U_\tau \left[\sigma(u_k)\otimes \text{Tr}_1(\rho_{k-1})\right]U_{\tau}^\dagger.
+\end{equation}
+
+A representative reservoir Hamiltonian is
+\begin{equation}
+    H = \sum_{i<j}J_{ij}X_iX_j+h\sum_i Z_i.
+\end{equation}
+
+Measurements turn the quantum state into usable features. Choose observables \(O_1,\ldots,O_M\), and define
+
+\begin{equation}
+    x_{k, m} = \text{Tr}(O_m\rho_k).
+\end{equation}
+
+\paragraph{Training}
+
+\paragraph{Inference}
+
+\bibliographystyle{IEEEtran}
+\bibliography{./bib/bib.bib}
+
+\end{document}

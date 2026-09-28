@@ -1,0 +1,12 @@
+# Full article order, including drafts. Publication filtering happens at build time.
+toc:
+  - file: index.tex
+  - title: Quantum Computing
+    children:
+      - file: content/Quantum computing/1_Quantum_bit.tex
+      - file: content/notebooks/quantum_computing/qiskit-single-qubit.ipynb
+        hidden: true
+  - title: Quantum Machine Learning
+    children:
+      - file: content/Quantum Machine Learning/0_Quantum_machine_learning.tex
+      - file: content/Quantum Machine Learning/3a_Quantum_reservoir_computing.tex

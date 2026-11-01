@@ -16,14 +16,14 @@ quantum = [
   "pennylane>=0.45.1,<0.46",
   "pennylane-qiskit>=0.45,<0.46",
   # PennyLane-Qiskit 0.45 currently caps Qiskit at 2.3.0.
-  "qiskit[visualization]==2.3.0",
+  "qiskit[visualization]==2.6.1",
   "qiskit-aer>=0.17.2,<0.18",
 ]
 animation = [
-  "manim>=0.21,<0.22",
+  "manim>=0.21,<0.23",
 ]
 cudaq = [
-  "cudaq>=0.15.1,<0.16; (sys_platform == 'linux' and platform_machine == 'x86_64') or (sys_platform == 'darwin' and platform_machine == 'arm64')",
+  "cudaq>=0.15.1,<0.17; (sys_platform == 'linux' and platform_machine == 'x86_64') or (sys_platform == 'darwin' and platform_machine == 'arm64')",
 ]
 
 [dependency-groups]
@@ -31,8 +31,8 @@ dev = [
   "nbclient>=0.11,<0.12",
   "nbformat>=5.10,<6",
   "pre-commit>=4.3,<5",
-  "pytest>=8.4,<9",
-  "ruff>=0.16.6,<0.17",
+  "pytest>=8.4,<10",
+  "ruff>=0.16.6,<0.18",
 ]
 
 [tool.uv]

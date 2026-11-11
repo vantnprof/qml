@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 import { mystParse } from "myst-parser";
 import { TexParser } from "tex-to-myst";
 import { VFile } from "vfile";
-import { assertNotDraft } from "../scripts/publication.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 export const includeCommand = String.raw`\providecommand{\include}[1]{\href{qml-include:}{included content}}`;
@@ -148,7 +147,6 @@ export function expandIncludes(tree, source, projectRoot = root) {
       if (name === undefined) throw new Error(`Include in ${currentFile}: could not read the file path from the TeX command.`);
       if (name !== null) {
         const file = resolveInclude(name, currentFile, projectRoot);
-        assertNotDraft(file);
         if (stack.includes(file)) throw new Error(`Circular include: ${[...stack, file].join(" -> ")}`);
         const id = `include-${hash(source)}-${sequence++}`;
         const text = readFileSync(file, "utf8");

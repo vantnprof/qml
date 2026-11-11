@@ -1,59 +1,121 @@
 # Jupyter Book 2 uses the MyST v1 configuration schema. The value below is the
 # schema version, not the installed Jupyter Book package version.
 version: 1
-extends:
-  - metadata/published.yml
 
 project:
   id: 397ec672-780b-48e0-8fc7-68104b7fa65a
-  title: Quantum Machine Learning
-  description: Research notes by Van Tien Nguyen on quantum computing and machine learning, with mathematical explanations, interactive visualizations, and notebook experiments.
-  index: index.tex
+  title: Quantum Machine Learning Course
+  description: A hands-on course on quantum machine learning, from encoding data into qubits to variational models, kernels, reservoirs and real quantum hardware.
   authors:
     - name: Van Tien Nguyen
+  license: CC-BY-4.0
+  jupyter: true
   keywords:
+    - quantum machine learning
     - quantum computing
     - machine learning
-    - quantum machine learning
-    - Qiskit
     - PennyLane
+    - Qiskit
     - CUDA-Q
-    - Manim
+    - course
   bibliography:
     - bib/bib.bib
   requirements:
     - pyproject.toml
     - uv.lock
+  math:
+    '\ket': '\left|#1\right\rangle'
+    '\bra': '\left\langle#1\right|'
+    '\braket': '\left\langle#1\middle|#2\right\rangle'
   plugins:
-    - plugins/publication.mjs
     - plugins/page-dates.mjs
     - plugins/content-includes.mjs
-    - plugins/homepage.mjs
-  static_files:
-    - static/bloch-sphere.html
   exclude:
     - README.md
     - CONTRIBUTING.md
     - docs/**
-    - sidebar-footer.md
+    - parts/**
     - animations/**
     - scripts/**
     - tests/**
     - plugins/**
     - metadata/**
+  # Lecture pages live in lectures/NN-topic/. Written notes and notebooks live in
+  # content/ and are attached as children of the lecture they belong to. A file
+  # that is not listed here is not published, so drafts stay private.
+  toc:
+    - file: index.md
+    - title: "Layer 1 · Foundations"
+      children:
+        - file: lectures/00-welcome/index.md
+        - file: lectures/01-ml-essentials/index.md
+        - file: lectures/02-quantum-computing-for-ml/index.md
+          children:
+            - file: content/Quantum computing/1_Quantum_bit.tex
+            - file: content/notebooks/quantum_computing/qiskit-single-qubit.ipynb
+    - title: "Layer 2 · Data Meets Hilbert Space"
+      children:
+        - file: lectures/03-data-encoding/index.md
+        - file: lectures/04-parameterised-circuits/index.md
+        - file: lectures/05-training-quantum-models/index.md
+    - title: "Layer 3 · Quantum Models"
+      children:
+        - file: lectures/06-variational-classifiers/index.md
+        - file: lectures/07-quantum-kernels/index.md
+        - file: lectures/08-hybrid-models/index.md
+        - file: lectures/09-quantum-neural-networks/index.md
+    - title: "Layer 4 · Dynamics & Generative Models"
+      children:
+        - file: lectures/10-quantum-reservoir-computing/index.md
+        - file: lectures/11-generative-models/index.md
+        - file: lectures/12-quantum-data/index.md
+    - title: "Layer 5 · Reality Check"
+      children:
+        - file: lectures/13-barren-plateaus/index.md
+        - file: lectures/14-nisq-hardware/index.md
+        - file: lectures/15-scaling-up/index.md
+    - title: "Layer 6 · Projects"
+      children:
+        - file: lectures/16-project-1/index.md
+        - file: lectures/17-project-2/index.md
+    - title: "🧰 Lab Toolbox"
+      children:
+        - file: content/workflow-examples/workflow-examples.md
+          children:
+            - file: content/workflow-examples/qiskit-bell-state.ipynb
+            - file: content/workflow-examples/pennylane-circuit.ipynb
+            - file: content/workflow-examples/cudaq-bell-state.ipynb
+            # manim.md embeds media made by `make animations`; list it here
+            # once you publish your first Manim scene.
+
 site:
-  template: book-theme
+  # Pinned: newer theme releases need a newer Jupyter Book than uv.lock provides.
+  # Upgrade both together.
+  template: https://github.com/jupyter-book/myst-theme/releases/download/myst-to-react%401.4.1/book-theme.zip
   title: Quantum Machine Learning
+  nav:
+    - title: 🚀 Projects
+      children:
+        - title: 🎯 Project 1
+          url: /lectures/project-1
+        - title: 🏆 Project 2
+          url: /lectures/project-2
+  actions:
+    - title: ψ Start learning
+      url: /lectures/welcome
+  parts:
+    footer: parts/footer.md
+    primary_sidebar_footer: parts/sidebar-footer.md
   options:
     favicon: static/logo_and_cover/qml-favicon.png
     logo: static/logo_and_cover/qml-logo.webp
     logo_alt: Quantum Machine Learning
-    logo_text: Quantum Machine Learning
-    folders: false
+    logo_text: QML Course
+    # Theme: switch between the two stylesheets in static/themes/.
+    #   riso.css     — "Riso Superposition": fluorescent pink and blue inks out of register,
+    #                  halftone discs, paper grain, a yellow highlighter, a qubit lattice
+    #   ink-wire.css — "Ink & Wire": sumi ink on washi paper with quantum-circuit wires
+    style: static/themes/riso.css
+    folders: true
+    outline_maxdepth: 2
     numbered_references: true
-    style: static/site.css
-  parts:
-    primary_sidebar_footer: sidebar-footer.md
-  nav:
-    - title: About the author
-      url: https://vantnprof.github.io

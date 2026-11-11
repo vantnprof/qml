@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "publication": "node scripts/publication.mjs",
     "branding": "node scripts/update-branding.mjs",
     "test": "node --test tests/*.test.mjs"
   },

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data re-uploading playground</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #fffcf5; --sunk: #efe8d9; --ink: #1f2547; --muted: #6e7290; --line: #ddd3c2;
+      --curve: #0078bf; --accent: #ff48b0; --ok: #00a95c; --off: #d8cfbf;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #1d1b42; --sunk: #19173a; --ink: #f4efff; --muted: #9a94bd; --line: #2e2b5a;
+        --curve: #38a8ff; --accent: #ff5fbf; --ok: #2fd38a; --off: #3a3768;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { padding: 18px; background: var(--paper); border: 2px solid var(--ink); border-radius: 10px; }
+    h2 { margin: 0 0 2px; font: 700 18px Georgia, serif; }
+    .hint { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+    .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 18px; align-items: end; margin-bottom: 12px; }
+    label { display: block; font-size: 13px; color: var(--muted); }
+    label b { color: var(--ink); font-family: ui-monospace, Menlo, monospace; }
+    input[type=range] { width: 100%; accent-color: var(--accent); }
+    button {
+      font: 600 13px system-ui, sans-serif; padding: 7px 12px; cursor: pointer;
+      color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 6px;
+      box-shadow: 3px 3px 0 var(--accent);
+    }
+    button:active { transform: translate(2px, 2px); box-shadow: none; }
+    .panels { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; }
+    @media (max-width: 620px) { .panels { grid-template-columns: 1fr; } }
+    figure { margin: 0; padding: 10px; background: var(--sunk); border-radius: 8px; }
+    figcaption { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    svg { display: block; width: 100%; height: auto; }
+    svg text { fill: var(--muted); font: 11px ui-monospace, Menlo, monospace; }
+    .axis { stroke: var(--muted); stroke-width: 1; }
+    .grid { stroke: var(--line); stroke-width: 1; }
+    .curve { fill: none; stroke: var(--curve); stroke-width: 2.5; }
+    .marker { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
+    .guide { stroke: var(--accent); stroke-dasharray: 3 4; }
+    .bar-on { fill: var(--ok); }
+    .bar-off { fill: var(--off); }
+    .forbidden { fill: var(--accent); opacity: .08; }
+    .readout { margin-top: 10px; font: 13px ui-monospace, Menlo, monospace; }
+    .circuit { margin: 0 0 12px; padding: 8px 10px; overflow-x: auto; white-space: nowrap;
+      font: 13px ui-monospace, Menlo, monospace; background: var(--sunk); border-radius: 8px; }
+  </style>
+</head>
+<body>
+<main>
+  <h2>Data re-uploading playground</h2>
+  <p class="hint">One qubit, model f(x) = ⟨Z⟩. Trainable rotations W are interleaved with L encodings R<sub>Y</sub>(x). Change L, draw new random weights, and look at which frequencies appear.</p>
+
+  <div class="controls">
+    <label>Encoding layers L = <b id="Lval">2</b>
+      <input id="L" type="range" min="1" max="5" step="1" value="2"></label>
+    <label>Input x = <b id="xval">0.00</b>
+      <input id="x" type="range" min="-3.1416" max="3.1416" step="0.01" value="0.8"></label>
+    <div><button id="reroll" type="button">🎲 New random weights</button></div>
+  </div>
+
+  <div class="circuit" id="circuit" aria-label="Circuit diagram"></div>
+
+  <div class="panels">
+    <figure>
+      <svg id="plot" viewBox="0 0 420 220" role="img" aria-label="Model output f(x) as a function of x"></svg>
+      <figcaption>Model output f(x) for x ∈ [−π, π]. The dot follows the x slider.</figcaption>
+    </figure>
+    <figure>
+      <svg id="spec" viewBox="0 0 260 220" role="img" aria-label="Fourier spectrum of f(x)"></svg>
+      <figcaption>Fourier amplitudes |c<sub>ω</sub>|. Shaded frequencies ω &gt; L are unreachable.</figcaption>
+    </figure>
+  </div>
+  <div class="readout" id="readout"></div>
+</main>
+<script>
+(() => {
+  // Minimal complex 2×2 linear algebra for a single qubit.
+  const c = (re, im = 0) => ({ re, im });
+  const mul = (a, b) => c(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
+  const add = (a, b) => c(a.re + b.re, a.im + b.im);
+  const apply = (M, v) => [add(mul(M[0][0], v[0]), mul(M[0][1], v[1])), add(mul(M[1][0], v[0]), mul(M[1][1], v[1]))];
+  const RY = (t) => { const a = Math.cos(t / 2), b = Math.sin(t / 2); return [[c(a), c(-b)], [c(b), c(a)]]; };
+  const RZ = (t) => [[c(Math.cos(t / 2), -Math.sin(t / 2)), c(0)], [c(0), c(Math.cos(t / 2), Math.sin(t / 2))]];
+  // A general trainable rotation W = RZ(a) RY(b) RZ(g), applied right to left.
+  const W = ([a, b, g], v) => apply(RZ(a), apply(RY(b), apply(RZ(g), v)));
+
+  const $ = (id) => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  const MAXW = 6;
+  let weights = [];
+  const reroll = () => { weights = Array.from({ length: MAXW }, () => [0, 0, 0].map(() => Math.random() * 2 * Math.PI)); };
+
+  function model(x, L) {
+    let v = [c(1), c(0)];
+    v = W(weights[0], v);
+    for (let l = 1; l <= L; l++) { v = apply(RY(x), v); v = W(weights[l], v); }
+    const p0 = v[0].re ** 2 + v[0].im ** 2, p1 = v[1].re ** 2 + v[1].im ** 2;
+    return p0 - p1;
+  }
+
+  function spectrum(L, N = 64) {
+    const f = Array.from({ length: N }, (_, j) => model(-Math.PI + 2 * Math.PI * j / N, L));
+    return Array.from({ length: MAXW + 1 }, (_, w) => {
+      let re = 0, im = 0;
+      f.forEach((y, j) => { const t = -Math.PI + 2 * Math.PI * j / N; re += y * Math.cos(w * t); im -= y * Math.sin(w * t); });
+      return Math.hypot(re, im) / N;
+    });
+  }
+
+  function draw() {
+    const L = +$("L").value, x = +$("x").value;
+    $("Lval").textContent = L; $("xval").textContent = x.toFixed(2);
+    $("circuit").textContent = "|0⟩ ─ W₀ ─" + Array.from({ length: L }, (_, i) => ` R_Y(x) ─ W${"₁₂₃₄₅"[i]} ─`).join("") + " ⟨Z⟩";
+
+    // Output curve
+    const P = $("plot"); P.replaceChildren();
+    const X0 = 34, X1 = 410, Y0 = 200, Y1 = 14, sx = (t) => X0 + (t + Math.PI) / (2 * Math.PI) * (X1 - X0), sy = (y) => Y0 + (y + 1) / 2 * (Y1 - Y0);
+    [-1, 0, 1].forEach((y) => { el("line", { x1: X0, x2: X1, y1: sy(y), y2: sy(y), class: y === 0 ? "axis" : "grid" }, P); el("text", { x: 4, y: sy(y) + 4 }, P).textContent = (y > 0 ? "+" : "") + y; });
+    [["−π", -Math.PI], ["0", 0], ["π", Math.PI]].forEach(([s, t]) => { el("text", { x: sx(t) - 6, y: 216 }, P).textContent = s; });
+    let d = "";
+    for (let i = 0; i <= 240; i++) { const t = -Math.PI + 2 * Math.PI * i / 240; d += (i ? "L" : "M") + sx(t).toFixed(1) + " " + sy(model(t, L)).toFixed(1); }
+    el("path", { d, class: "curve" }, P);
+    const fx = model(x, L);
+    el("line", { x1: sx(x), x2: sx(x), y1: Y0, y2: Y1, class: "guide" }, P);
+    el("circle", { cx: sx(x), cy: sy(fx), r: 6, class: "marker" }, P);
+
+    // Spectrum
+    const S = $("spec"); S.replaceChildren();
+    const spec = spectrum(L), max = Math.max(0.5, ...spec);
+    const bw = 30, gap = 4, bx = (w) => 14 + w * (bw + gap), by = (a) => 196 - a / max * 176;
+    el("rect", { x: bx(L + 1) - gap / 2, y: 10, width: bx(MAXW + 1) - bx(L + 1), height: 186, class: "forbidden" }, S);
+    el("line", { x1: 10, x2: 252, y1: 196, y2: 196, class: "axis" }, S);
+    spec.forEach((a, w) => {
+      el("rect", { x: bx(w), y: by(a), width: bw, height: Math.max(0.5, 196 - by(a)), rx: 3, class: w <= L ? "bar-on" : "bar-off" }, S);
+      el("text", { x: bx(w) + bw / 2 - 4, y: 214 }, S).textContent = w;
+    });
+
+    const top = spec.reduce((best, a, w) => (a > 1e-6 ? w : best), 0);
+    $("readout").textContent = `f(${x.toFixed(2)}) = ${fx >= 0 ? "+" : ""}${fx.toFixed(3)}   ·   highest frequency present: ω = ${top} (limit L = ${L})`;
+  }
+
+  reroll();
+  $("L").addEventListener("input", draw);
+  $("x").addEventListener("input", draw);
+  $("reroll").addEventListener("click", () => { reroll(); draw(); });
+  draw();
+})();
+</script>
+</body>
+</html>

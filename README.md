@@ -1,9 +1,13 @@
-# Quantum Machine Learning
+# Quantum Machine Learning Course
 
-This repository keeps the author's Jupyter Book content separate from the
-tooling used to execute, validate, visualize, and publish it. The existing TeX
-pages remain author-controlled. Small, removable examples under
-`content/workflow-examples/` demonstrate each supported workflow.
+A hands-on quantum machine learning course, built with
+[Jupyter Book 2](https://jupyterbook.org) and deployed to GitHub Pages. Every
+lecture lists its prerequisites, then builds from data encoding to quantum
+models, their limits, and real hardware.
+
+16 lectures and 2 projects, in six layers: Foundations → Data Meets Hilbert
+Space → Quantum Models → Dynamics & Generative Models → Reality Check →
+Projects.
 
 ## Quick start
 
@@ -54,12 +58,9 @@ make build-fast   # fast build using saved notebook outputs
 the checks and a production-equivalent build; pushes to `main` deploy the same
 artifact to GitHub Pages.
 
-Article visibility is controlled in `metadata/homepage.json`: set
-`"status": "draft"` to keep an article out of the website, or
-`"status": "published"` to include it. The source remains editable under
-`content/`. Preview and build commands apply these settings automatically;
-restart the preview after changing a status. Keep the full page order in
-`metadata/navigation.yml`; `metadata/published.yml` is generated.
+The table of contents lives in `myst.yml`. A page that is not listed there is
+not published, so drafts in `content/` stay private until you add them as a
+child of their lecture.
 
 CUDA-Q notebook changes also run through a separate Linux CPU validation
 workflow. It installs the optional CUDA-Q stack and executes the book without
@@ -68,18 +69,22 @@ requiring that large platform-specific dependency in every normal CI job.
 ## Repository design
 
 ```text
-content/                 author-owned chapters and notebooks
+index.md                 home page: hero and roadmap
+lectures/NN-topic/       one folder per lecture (index.md + materials)
+parts/                   site footer and sidebar footer
+content/                 author-owned notes, TeX chapters and notebooks
 animations/              author-owned Manim sources + render manifest
 static/generated/        generated MP4/poster files (ignored)
-static/site.css           hand-maintained book interface and color system
+static/themes/            two site themes: riso.css (active) and ink-wire.css
+static/widgets/          self-contained interactive HTML widgets
 static/qml-mark.svg       source logo and favicon
 bib/                     author-owned bibliography
 metadata/page-dates.json optional editorial date overrides
 plugins/page-dates.mjs    automatic date presentation and Git updates
 scripts/                 validation and rendering automation
-tests/                   environment compatibility checks
+tests/                   course-structure and environment checks
 docs/                    workflow documentation (outside the book TOC)
-myst.yml                 Jupyter Book 2 project, site, and TOC config
+myst.yml                 Jupyter Book 2 project, site and TOC config
 pyproject.toml            dependency groups and tool configuration
 uv.lock                  exact cross-platform dependency resolution
 ```

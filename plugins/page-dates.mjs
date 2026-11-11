@@ -136,9 +136,6 @@ const pageDatesTransform = {
 
     if (!isReaderPage) return;
 
-    const editorial = JSON.parse(readFileSync(resolve(projectRoot, "metadata/homepage.json"), "utf8"));
-    if (editorial.articles.some((article) => article.file === sourcePath && article.status === "draft")) return;
-
     const { published, updated } = datesForPage(sourcePath);
 
     mdast.children.unshift({

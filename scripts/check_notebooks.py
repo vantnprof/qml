@@ -7,12 +7,17 @@ from pathlib import Path
 import nbformat
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTENT_ROOT = ROOT / "content"
+CONTENT_ROOTS = (ROOT / "content", ROOT / "lectures")
 
 
 def main() -> None:
     problems: list[str] = []
-    notebooks = sorted(CONTENT_ROOT.rglob("*.ipynb"))
+    notebooks = sorted(
+        path
+        for root in CONTENT_ROOTS
+        for path in root.rglob("*.ipynb")
+        if ".ipynb_checkpoints" not in path.parts
+    )
 
     if not notebooks:
         print("No notebooks found; nothing to validate")

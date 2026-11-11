@@ -15,13 +15,6 @@ node_modules/.package-lock.json: package.json package-lock.json
 setup setup-animation setup-cudaq setup-all preview build build-cudaq build-fast check test: node_modules/.package-lock.json
 
 .PHONY: help setup setup-animation setup-cudaq setup-all lab cudaq-lab cudaq-test preview build build-cudaq build-fast animations check test doctor clean
-.PHONY: prepare-publication
-
-prepare-publication: node_modules/.package-lock.json
-	$(NPM) run publication
-
-preview build build-cudaq build-fast: prepare-publication
-
 help:
 	@echo "setup       Install the book, notebook, and quantum environment"
 	@echo "setup-animation  Add the Manim environment"
@@ -31,7 +24,6 @@ help:
 	@echo "cudaq-lab   Start JupyterLab with CUDA-Q on a supported host"
 	@echo "cudaq-test  Check the portable CUDA-Q CPU target"
 	@echo "preview     Start the Jupyter Book development server"
-	@echo "prepare-publication  Apply article draft/published switches"
 	@echo "build       Execute notebooks, render registered scenes, and build"
 	@echo "build-cudaq Execute the book with CUDA-Q available"
 	@echo "build-fast  Build from saved notebook outputs without execution"

@@ -1,13 +1,15 @@
-# Authoring and publication workflow
+# Authoring workflow
 
 This file documents infrastructure only. It is excluded from the Jupyter Book
-table of contents so it does not become a blog post.
+table of contents so it never becomes a course page.
 
 ## Pages and notebooks
 
-Keep book content under `content/` and add it to `toc` in `metadata/navigation.yml`.
-The current TeX pages remain valid inputs. New computational material can use
-Jupyter notebooks (`.ipynb`) or MyST Markdown pages with executable cells.
+Lecture pages live in `lectures/NN-topic/index.md`. Your written notes, TeX
+chapters and notebooks live in `content/` and are attached to a lecture as
+children in the `toc` of `myst.yml` (see *Course structure* below). TeX pages
+remain valid inputs. New computational material can use Jupyter notebooks
+(`.ipynb`) or MyST Markdown pages with executable cells.
 
 Start the locked notebook environment with:
 
@@ -17,7 +19,7 @@ make lab
 
 It includes Qiskit, Qiskit Aer, PennyLane, and the PennyLane-Qiskit adapter.
 Use the `python3` kernelspec in committed notebooks. `make check` discovers
-notebooks anywhere below `content/`, validates their format and kernelspec, and
+notebooks anywhere below `content/` and `lectures/`, validates their format and kernelspec, and
 rejects saved error outputs or obvious local absolute paths.
 
 The production build executes normal notebook cells. For hardware-only,
@@ -91,119 +93,104 @@ sudo apt-get install build-essential python3-dev libcairo2-dev \
 
 The GitHub workflows install the same packages automatically.
 
-## Homepage and recent articles
+## Course structure
 
-Edit the website bio in `index.tex`. The `qml-home:recent` link is a build
-marker: `plugins/homepage.mjs` replaces it with a recent-articles table using
-native MyST links.
+The home page (`index.md`) has a hero and a roadmap, followed by one folder
+per lecture. The roadmap is grouped into six *layers*:
 
-When an article is ready to appear on the homepage, add its source path, title,
-and category to `metadata/homepage.json`. It must
-also have a visible file entry in `metadata/navigation.yml`. Hidden notebooks, unfinished
-chapters without an editorial entry, entries with `"status": "draft"`, and
-missing files are omitted. The recent table shows up to six entries,
-sorted by the update dates from `plugins/page-dates.mjs`; it refreshes on every
-site build and is not a real-time broadcast. Date overrides remain in
-`metadata/page-dates.json`.
+| Layer | Lectures | Theme |
+| --- | --- | --- |
+| 1 · Foundations | 00–02 | ML loop and the quantum computer it runs on |
+| 2 · Data Meets Hilbert Space | 03–05 | encoding, PQCs, gradients |
+| 3 · Quantum Models | 06–09 | classifiers, kernels, hybrid models, QNNs |
+| 4 · Dynamics & Generative Models | 10–12 | reservoirs, Born machines, quantum data |
+| 5 · Reality Check | 13–15 | barren plateaus, NISQ hardware, scaling |
+| 6 · Projects | 16–17 | two projects |
 
-### Draft and published articles
+Each lecture page has the same sections: a banner (number and layer), one
+**big idea**, learning objectives, **prerequisites** (the concepts a student
+should already know), an outline, a warm-up question with a hidden
+answer, then Slides, Notebooks, Exercises and Further reading. A section that
+is not written yet uses the `coming-soon` block; replace it when you add the
+material.
 
-Set an article's `status` in `metadata/homepage.json`:
+### Adding notes or a notebook to a lecture
 
-```json
-"status": "draft"
+Write the notes in `content/` as before (TeX, Markdown or a notebook), then
+list the file as a child of its lecture in `myst.yml`:
+
+```yaml
+- file: lectures/10-quantum-reservoir-computing/index.md
+  children:
+    - file: content/Quantum Machine Learning/3a_Quantum_reservoir_computing.tex
 ```
 
-A draft stays in the repository for editing, but is excluded from the website:
-no article page, navigation link, search entry, or recent-articles entry. Set
-`"status": "published"` to publish it. Existing entries without a status default
-to published; use an explicit status for new articles. The hidden Qiskit notebook
-remains a published page accessible through its article link.
+and link it from the lecture's *Lecture notes* or *Notebooks* section. A file
+that is not listed in the `toc` is not published, which is how drafts stay
+private. The reservoir computing and QML introduction notes are currently
+unlisted for that reason.
 
-`make preview`, `make build`, `make build-fast`, and `make build-cudaq` apply the
-switch automatically, including in the deployment workflow. After changing a
-status while previewing, stop the preview and run `make preview` again. To use
-Jupyter Book commands directly, run `make prepare-publication` first. The plugin
-rejects stale publication settings and references or includes of draft files.
+### Adding a lecture
 
-The full navigation order lives in `metadata/navigation.yml`.
-`metadata/published.yml` is generated; do not edit it. When publication settings
-change, generated website output and its content cache are cleared so old draft
-pages and downloads cannot remain in the next deployment. Source files, notebooks,
-and LaTeX build output are preserved. When publishing an article, set its actual
-publication date in `metadata/page-dates.json` if needed.
+Create `lectures/NN-topic/index.md` by copying a neighbour, add it to the `toc`
+in `myst.yml` and add a card to the matching `roadmap-grid` in `index.md`.
+`npm test` (part of `make test`) checks that the TOC, the roadmap and the
+lecture banners agree, that every citation key exists in `bib/bib.bib`, and
+that every lecture lists its prerequisites.
 
-The original logo and cover are preserved in `static/logo_and_cover/`.
-The homepage uses a 1920px WebP cover, the navigation uses a small WebP logo,
-and the favicon uses a 64px PNG, all exported from those originals without
-changing their artwork. Update these web exports when replacing the originals.
-Then run `npm run branding` to refresh the inline copies in `static/site.css`.
-These CSS image replacements retain the image alt text and let the logo and
-cover display when only the main preview port is forwarded over SSH. The native
-image paths remain available to other exports. Only the generated branding
-section at the end of the stylesheet is rewritten by this command.
+### Interactive widgets
+
+Self-contained HTML widgets live in `static/` (for example
+`static/bloch-sphere.html` and `static/widgets/reuploading-playground.html`).
+Embed one by putting a link to it on a line of its own. In Markdown:
+
+```markdown
+[](qml-include:static/widgets/reuploading-playground.html)
+```
+
+and in TeX, `\include{static/bloch-sphere.html}`. `plugins/content-includes.mjs`
+inlines the file as an iframe `srcdoc`, so the widget works in the preview
+without forwarding the content-server port. Widgets should support
+`prefers-color-scheme` and size to their content; the plugin resizes the frame.
+
+### Branding
+
+The original logo and cover artwork are preserved in `static/logo_and_cover/`.
+The navigation uses a small WebP logo and the favicon a 64px PNG, both
+exported from those originals. After replacing the logo, run
+`npm run branding` to refresh the inline copy at the end of every stylesheet in
+`static/themes/`. This CSS image replacement keeps the image alt text and lets
+the logo display when only the main preview port is forwarded over SSH. Only
+the generated branding section is rewritten.
 
 ## Interface theme
 
-The site uses the standard Jupyter Book 2 `book-theme` with a small,
-dependency-free presentation layer in `static/site.css`. Its warm paper,
-indigo, ink, and vermilion tokens support both light and dark modes, compact
-mobile navigation, a restrained prose measure, visible keyboard focus,
-reduced-motion preferences, and a clean print view. The logo and cover artwork
-and their web exports are in `static/logo_and_cover/`.
+Two themes live in `static/themes/`. Switch by changing `site.options.style`
+in `myst.yml`:
 
-Reader-facing prose and media use CSS selection/drag deterrence, while inline
-code and code cells remain selectable and keep their copy buttons. This is a
-presentation safeguard rather than digital rights management: text delivered
-to a browser can still be recovered by a technically capable reader.
+| Theme | Look |
+| --- | --- |
+| `riso.css` (active) | **Riso Superposition**: a risograph zine. Fluorescent pink and riso blue are printed slightly out of register (titles and the key hero word). Large halftone discs overlap in the corner, and there is paper grain, a yellow highlighter for the active page and the big idea, a faint qubit lattice with pulsing entangled pairs, and halftone fields on banners and roadmap boards. Dark mode is a night print with glowing inks. |
+| `ink-wire.css` | **Ink & Wire**: sumi ink on washi paper with vermilion accents and quantum-circuit wires, matching the original cover. |
+
+Both share the same class contract (`hero`, `training-log`, `roadmap-grid`,
+`phase-N`, `lecture-banner`, `big-idea`, `coming-soon`), so pages do not change
+when you switch. Layer colours are the `--phase-1` … `--phase-6` variables. The
+riso theme's colours and SVG textures sit in its two token blocks (`:root`
+and `.dark`); edit the hex values there. Light and dark modes, reduced motion and
+print are handled at the end of each file.
+
+The theme version is pinned in `myst.yml` (`site.template`) because newer theme
+releases require a newer Jupyter Book than `uv.lock` provides. Upgrade the two
+together.
 
 Keep design changes in those source files rather than editing `_build/`, which
 is regenerated. Check changes with `make preview` at narrow and wide browser
-sizes and in both color schemes. A strict build validates that Jupyter Book can
-find and package the stylesheet and mark for local and GitHub Pages URLs.
-
-## Interactive Bloch sphere
-
-`static/bloch-sphere.html` contains the standalone HTML, CSS, SVG, and JavaScript
-for the qubit visualization. Open it directly in a browser to edit or reuse it;
-it has no external dependencies. Its three sliders control the polar angle
-theta, relative phase phi, and global phase gamma. The complex amplitudes include
-gamma, while the Bloch coordinates and measurement probabilities do not.
-
-`plugins/bloch-sphere.mjs` inserts the widget immediately after the paragraph
-containing “Bloch sphere representation of a qubit” in the Quantum Computing
-content directory. It follows the paragraph even if the chapter is renamed.
-This leaves the TeX source usable for normal LaTeX compilation. If that
-sentence changes, update the plugin's anchor as well. The plugin includes the
-repository-owned HTML directly as an iframe `srcdoc` in a MyST rich HTML output.
-This avoids the preview server's static-file redirect to port 3100, so readers
-only need access to the main preview port (normally 3000). No notebook execution
-or kernel is required. Restart `make preview` after changing the plugin or widget.
-The standalone HTML is also copied through `project.static_files` in `myst.yml`.
-The `.qml-bloch-sphere` rules in `static/site.css` and the widget's resize observer
-let the embedded figure fit its content on desktop and mobile.
-
-## Qiskit example notebook
-
-`content/examples/qiskit-single-qubit.ipynb` contains the executable single-qubit
-example and its saved circuit drawing, printed statevectors, and Bloch plots.
-Edit `alpha` and `beta` in the preparation cell, then restart the notebook kernel
-and run all cells to refresh the saved outputs. The amplitudes must be normalized.
-
-`plugins/qiskit-example.mjs` embeds the labeled notebook cells, in notebook order,
-under `\paragraph{Example with Qiskit}` in
-`content/Quantum computing/1_Quantum_bit.tex`. MyST resolves the native cell
-embeds from the notebook listed in the table of contents, retaining both inputs
-and outputs. Keep the cell metadata `label` fields when editing or adding cells
-to the embedded example. Restart `make preview` after changing the plugin.
-The page shows saved results; changing Python values requires running the notebook
-in Jupyter. The production build also executes the notebook.
-The plugin keeps this example's PNG plots inline, so previewing them does not
-require forwarding MyST's separate content-server port.
+sizes and in both colour schemes.
 
 ## Publication dates
 
-Every content article automatically displays a compact `Published` and
+Every page under `content/` automatically displays a compact `Published` and
 `Last updated` line beneath its title. There is no date field to maintain when
 adding a page: `Published` uses its earliest Git history, while `Last updated`
 uses its newest commit. For an untracked page, the publication fallback is its
